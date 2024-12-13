@@ -1,129 +1,65 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+import { NetflixAppBar } from "./NetflixAppBar";
+import { NetflixRow } from "./NetflixRow";
+import { NetflixFooter } from "./NetflixFooter";
 import "./Netflix.css";
+import axios from "axios";
 
-const NetflixAppBar = () => {
-	const [appBarStyle, setAppBarStyle] = React.useState({
-		background: "transparent",
-		boxShadow: "none",
-	});
+const NetflixHeader = ({ movie }) => {
+	// 🐶 si 'movie' n'est pas défini, retourne un fragment vide 🤖 <></>
 
-	React.useEffect(() => {
-		const onScroll = (e) => {
-			if (e.target.documentElement.scrollTop >= 100) {
-				setAppBarStyle({
-					background: "#111",
-					transition: "background .5s ease-out",
-					boxShadow: "none",
-				});
-			} else {
-				setAppBarStyle({
-					background: "transparent",
-					transition: "background .5s ease-out",
-					boxShadow: "none",
-				});
-			}
-		};
-		window.addEventListener("scroll", onScroll);
-
-		return () => window.removeEventListener("scroll", onScroll);
-	}, []);
-
-	const margin10 = { margin: 10 };
+	// 🐶 si 'movie' est défini, retourne le header
+	const imageUrl = `https://image.tmdb.org/t/p/original${movie?.backdrop_path}`;
+	const banner = {
+		backgroundImage: `url('${imageUrl}')`,
+		backgroundSize: "cover",
+		backgroundPosition: "center center",
+		color: "white",
+		objectFit: "contain",
+		height: "450px",
+	};
+	if (!movie) {
+		return <></>;
+	}
 
 	return (
-		<div>
-			<AppBar style={appBarStyle}>
-				<Toolbar>
-					<img className="nav__logo" src="/images/netflix-logo.png" alt="" />
-					<a href="/">
-						<Typography style={margin10} variant="h6">
-							Acceuil
-						</Typography>
-					</a>
-					<a href="/series">
-						<Typography style={margin10} variant="h6">
-							Serie
-						</Typography>
-					</a>
-					<a href="/movies">
-						<Typography style={margin10} variant="h6">
-							Films
-						</Typography>
-					</a>
-					<a href="/news">
-						<Typography style={margin10} variant="h6">
-							Nouveautés les plus regardées
-						</Typography>
-					</a>
-					<a href="/list">
-						<Typography style={margin10} variant="h6">
-							Ma liste
-						</Typography>
-					</a>
-					<img
-						style={{ marginLeft: "auto" }}
-						className="nav__avatar"
-						src="/images/netflix-avatar.png"
-						alt=""
-					/>
-				</Toolbar>
-			</AppBar>
-		</div>
-	);
-};
-
-const NetflixHeader = () => {
-	return (
-		<header className="banner">
+		<header style={banner}>
 			<div className="banner__contents">
-				<h1 className="banner__title">La casa de papel</h1>
+				<h1 className="banner__title">{movie?.title ?? "..."}</h1>
 				<div className="banner__buttons">
 					<button className="banner__button banner__buttonplay">Lecture</button>
 					<button className="banner__button banner__buttonInfo">
 						Ajouter à ma liste
 					</button>
 				</div>
-				<h1 className="synopsis">
-					Le Professeur recrute une jeune braqueuse et sept autres criminels en
-					vue d'un cambriolage grandiose ciblant la Maison royale de la Monnaie
-					d'Espagne.
-				</h1>
+				<h1 className="synopsis">{movie?.overview ?? "..."}</h1>
 			</div>
 			<div className="banner--fadeBottom"></div>
 		</header>
 	);
 };
-const NetFlixFooter = () => {
-	return <footer className="footer">2021 - Netflix Clone</footer>;
-};
-
-const NetflixRow = ({ title = "", wideImage = true }) => {
-	const image = wideImage ? "images/sample-poster.jpg" : "images/sample.jpg";
-	return (
-		<div className="row">
-			<h2>{title}</h2>
-			<div className="row__posters">
-				<img className="row__poster row__posterLarge" src={image} alt="" />
-				<img className="row__poster row__posterLarge" src={image} alt="" />
-				<img className="row__poster row__posterLarge" src={image} alt="" />
-				<img className="row__poster row__posterLarge" src={image} alt="" />
-			</div>
-		</div>
-	);
-};
 
 const NetflixApp = () => {
+	const [headerMovie, setHeaderMovie] = React.useState();
+	const defaultMovieId = 399566;
+	const apiKey = "4fc7b001e8a107fe1fddc6b41ed0f4af";
+	const lang = "fr-fr";
+	const url = `https://api.themoviedb.org/3/movie/${defaultMovieId}?api_key=${apiKey}&language=${lang}`;
+	React.useEffect(() => {
+		axios
+			.get(url)
+			.then((response) => setHeaderMovie(response))
+			.catch((error) => console.error(error));
+	}, [url]);
+
 	return (
 		<div>
 			<NetflixAppBar />
-			<NetflixHeader />
+			<NetflixHeader movie={headerMovie?.data} />
 			<NetflixRow wideImage={false} title="Films Netflix" />
 			<NetflixRow wideImage={true} title="Série Netflix" />
-			<NetFlixFooter />
+			<NetflixFooter />
 		</div>
 	);
 };
