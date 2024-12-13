@@ -12,6 +12,7 @@ import {
 	lang,
 	API_URL,
 } from "../config";
+import { clientApi } from "../utils/clientApi";
 
 const NetflixHeader = ({ movie, type = TYPE_MOVIE }) => {
 	const title = type === TYPE_MOVIE ? movie?.title : movie?.name;
@@ -51,8 +52,7 @@ const NetflixApp = () => {
 	const defaultMovieId = getRandomId(type);
 	const url = `https://api.themoviedb.org/3/${type}/${defaultMovieId}?api_key=${apiKey}&language=${lang}`;
 	React.useEffect(() => {
-		axios
-			.get(url)
+		clientApi(`${type}/${defaultMovieId}`)
 			.then((response) => setHeaderMovie(response))
 			.catch((error) => console.error(error));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
