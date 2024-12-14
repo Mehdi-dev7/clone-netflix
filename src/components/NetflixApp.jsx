@@ -33,6 +33,11 @@ const NetflixApp = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+	// if (status === 'error') {
+	// 	// sera catcher par ErrorBoundary
+	// 	throw new Error(error.message)
+	// }
   return (
     <div>
       <NetflixAppBar />
