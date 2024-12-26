@@ -9,6 +9,7 @@ import {makeStyles} from '@mui/styles'
 import {Alert, AlertTitle} from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import {useFetchData} from '../utils/hooks'
+import {TYPE_MOVIE, TYPE_TV} from '../config'
 import './Netflix.css'
 
 const useStyles = makeStyles(theme => ({
@@ -23,28 +24,64 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const NetflixApp = () => {
+  const classes = useStyles()
   const {data: headerMovie, error, status, execute} = useFetchData()
   const [type] = React.useState(getRandomType())
   const defaultMovieId = getRandomId(type)
-  const classes = useStyles()
-
+ 
   React.useEffect(() => {
     execute(clientApi(`${type}/${defaultMovieId}`))
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-	// if (status === 'error') {
-	// 	// sera catcher par ErrorBoundary
-	// 	throw new Error(error.message)
-	// }
+  if (status === 'error') {
+    // sera catché par ErrorBoundary
+    throw new Error(error.message)
+  }
   return (
     <div>
       <NetflixAppBar />
       <NetflixHeader movie={headerMovie?.data} type={type} />
-      <NetflixRow wideImage={false} title="Films Netflix" />
-      <NetflixRow wideImage={true} title="Série Netflix" />
-      <NetFlixFooter />
+      <NetflixRow
+        wideImage={true}
+        watermark={true}
+        type={TYPE_MOVIE}
+        filter="trending"
+        title="Films Netflix"
+      />
+      <NetflixRow
+        wideImage={false}
+        watermark={true}
+        type={TYPE_TV}
+        filter="trending"
+        title="Série Netflix"
+      />
+
+      <NetflixRow
+        type={TYPE_MOVIE}
+        filter="toprated"
+        title="Les mieux notés"
+        watermark={true}
+        wideImage={true}
+      />
+
+      <NetflixRow
+        type={TYPE_TV}
+        filter="genre"
+        param="10759"
+        title="Action & aventure"
+        watermark={true}
+        wideImage={true}
+      />
+
+      <NetflixRow
+        type={TYPE_MOVIE}
+        filter="genre"
+        param="53"
+        title="Les meilleurs Thriller"
+        watermark={false}
+        wideImage={false}
+      />
 
       {status === 'error' ? (
         <div className={classes.alert}>
@@ -54,13 +91,14 @@ const NetflixApp = () => {
           </Alert>
         </div>
       ) : null}
+
       {status === 'fetching' ? (
         <div className={classes.progress}>
-          <CircularProgress color="primary" />
+          <CircularProgress />{' '}
         </div>
       ) : null}
+      <NetFlixFooter color="secondary" si />
     </div>
   )
 }
-
 export {NetflixApp}
