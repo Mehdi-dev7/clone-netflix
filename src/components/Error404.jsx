@@ -1,4 +1,4 @@
-import { NetflixAppBar } from "components/NetflixAppBar";
+import { NetflixAppBar } from "./NetflixAppBar";
 import { Link } from "react-router-dom";
 
 function Error404() {
