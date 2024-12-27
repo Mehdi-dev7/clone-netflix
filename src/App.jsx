@@ -2,39 +2,13 @@ import { NetflixApp } from "./components/NetflixApp";
 import { ThemeProvider } from "@mui/styles";
 import { createTheme } from "@mui/material/styles";
 import { ErrorBoundary } from "react-error-boundary";
-import { NetflixAppBar } from "./components/NetflixAppBar";
-
-function ErrorFallback({ error, resetErrorBoundary }) {
-
-	return (
-		<div>
-			<NetflixAppBar />
-			<div
-				role="alert"
-				style={{
-					height: "100%",
-					textAlign: "center",
-					margin: "100px 300px",
-					color: "#fff",
-				}}
-			>
-				<h1 style={{ fontSize: "2.5em" }}>Vous cherchez votre chemin ?</h1>
-				<pre style={{ color: "red", fontSize: "1em" }}>
-					Erreur : {error.message}
-				</pre>
-
-				<div className="banner__buttons">
-					<button
-						className="banner__button banner__buttonplay"
-						onClick={resetErrorBoundary}
-					>
-						Accueil
-					</button>
-				</div>
-			</div>
-		</div>
-	);
-}
+import ErrorFallback from "./components/ErrorFallback";
+import Error404 from "./components/Error404";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { NetflixById } from "./components/NetflixById";
+import { NetflixMovies } from "./components/NetflixMovies";
+import { NetflixSeries } from "./components/NetflixSeries";
+import { NetflixNews } from "./components/NetflixNews";
 
 const theme = createTheme({
 	palette: {
@@ -47,13 +21,24 @@ const theme = createTheme({
 		},
 	},
 });
+
 function App() {
 	return (
-		<ThemeProvider theme={theme}>
-			<ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
-				<NetflixApp />
-			</ErrorBoundary>
-		</ThemeProvider>
+		<Router>
+			<ThemeProvider theme={theme}>
+				<ErrorBoundary FallbackComponent={ErrorFallback}>
+					<Routes>
+						<Route path="/" exact={true} element={<NetflixApp />}></Route>
+						<Route path="/tv/:tvId" element={<NetflixById />}></Route>
+						<Route path="/movie/:movieId" element={<NetflixById />}></Route>
+						<Route path="/movies" element={<NetflixMovies />}></Route>
+						<Route path="/series" element={<NetflixSeries />}></Route>
+						<Route path="/news" element={<NetflixNews />}></Route>
+						<Route path="*" element={<Error404 />}></Route>
+					</Routes>
+				</ErrorBoundary>
+			</ThemeProvider>
+		</Router>
 	);
 }
 
