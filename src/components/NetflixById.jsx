@@ -12,8 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useFetchData } from "../utils/hooks";
 import { TYPE_MOVIE, TYPE_TV } from "../config";
 import "./Netflix.css";
-
-// 🐶 importe les hooks 'useParams' et 'useLocation' de "react-router-dom"
+import { useParams, useLocation } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
 	alert: {
@@ -29,28 +28,27 @@ const useStyles = makeStyles((theme) => ({
 const NetflixById = () => {
 	const classes = useStyles();
 	const { data: headerMovie, error, status, execute } = useFetchData();
-	// 🐶 utilise le hook 'useParams' pour récuperer les valeurs de 'tvId' et 'movieId'
-	// 🐶 utilise le hook 'useLocation' pour récuperer la valeur de 'pathname'
-	// cela nous permetra de savoir si l'url est /tv/:tvId ou /movie/:movieId
-	// donc de pouvoir determiner le 'type' (TYPE_TV ou TYPE_MOVIE)
+	let { tvId, movieId } = useParams();
+	const location = useLocation();
 
-	// ⛏️ supprime 'getRandomType()' et met la valeur de type determinée plus haut.
-	const [type] = React.useState(getRandomType());
-
-	// 🐶 determine l'id en fonction du type (soit 'tvId' soit 'movieId' )
-	const defaultMovieId = getRandomId(type);
+	const [type, setType] = React.useState(
+		location.pathname.includes(TYPE_TV) ? TYPE_TV : TYPE_MOVIE
+	);
+	const [id, setId] = React.useState(type === TYPE_TV ? tvId : movieId);
 
 	React.useEffect(() => {
-		execute(clientApi(`${type}/${defaultMovieId}`));
-	}, [execute, defaultMovieId, type]);
+		execute(clientApi(`${type}/${id}`));
+	}, [execute, type, id]);
 
-	// 🐶 Utilise à nouveau 'useEffect' pour mettre à jour les 3 states suivants:
-	// - 'type'
-	// - 'id'
-	// - 'queried'
-	// ce qui va ensuite déclancher un nouvelle appel API
-	//
-	// n'oublie pas les dépendances
+	React.useEffect(() => {
+		const type = location.pathname.includes(TYPE_TV) ? TYPE_TV : TYPE_MOVIE;
+		setType(type);
+		setId(type === TYPE_TV ? tvId : movieId);
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	}, [location.pathname, movieId, tvId]);
 
 	if (status === "error") {
 		// sera catché par ErrorBoundary
