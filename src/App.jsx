@@ -1,14 +1,9 @@
-import { NetflixApp } from "./components/NetflixApp";
-import { ThemeProvider } from "@mui/styles";
-import { createTheme } from "@mui/material/styles";
-import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallback from "./components/ErrorFallback";
-import Error404 from "./components/Error404";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { NetflixById } from "./components/NetflixById";
-import { NetflixMovies } from "./components/NetflixMovies";
-import { NetflixSeries } from "./components/NetflixSeries";
-import { NetflixNews } from "./components/NetflixNews";
+import * as React from "react";
+import "./mocks";
+import * as authNetflix from "./utils/authNetflixProvider";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { AuthApp } from "./AuthApp"
+import { UnauthApp } from "./UnauthApp";
 
 const theme = createTheme({
 	palette: {
@@ -23,22 +18,37 @@ const theme = createTheme({
 });
 
 function App() {
+	const [authUser, setAuthUser] = React.useState(null);
+
+	const login = (data) => {
+		authNetflix
+			.login(data)
+			.then((user) => setAuthUser(user))
+			.catch((err) => console.error(err));
+	};
+
+	const register = (data) => {
+		authNetflix
+			.register(data)
+			.then((user) => setAuthUser(user))
+			.catch((err) => console.error(err));
+	};
+
+	const logout = () => {
+		authNetflix.logout();
+		setAuthUser(null);
+	};
+
 	return (
-		<Router>
-			<ThemeProvider theme={theme}>
-				<ErrorBoundary FallbackComponent={ErrorFallback}>
-					<Routes>
-						<Route path="/" exact={true} element={<NetflixApp />}></Route>
-						<Route path="/tv/:tvId" element={<NetflixById />}></Route>
-						<Route path="/movie/:movieId" element={<NetflixById />}></Route>
-						<Route path="/movies" element={<NetflixMovies />}></Route>
-						<Route path="/series" element={<NetflixSeries />}></Route>
-						<Route path="/news" element={<NetflixNews />}></Route>
-						<Route path="*" element={<Error404 />}></Route>
-					</Routes>
-				</ErrorBoundary>
-			</ThemeProvider>
-		</Router>
+		<ThemeProvider theme={theme}>
+			{authUser ? (
+				<AuthApp logout={logout} />
+			) : (
+				<UnauthApp login={login} register={register} />
+			)}
+
+			<AuthApp />
+		</ThemeProvider>
 	);
 }
 
